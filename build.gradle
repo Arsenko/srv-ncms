@@ -34,3 +34,14 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
 }
+
+task stage() {
+    dependsOn clean
+}
+
+task copyToLib(type: Copy) {
+    into "$buildDir/server"
+    from(configurations.compile) {
+        include "webapp-runner*"
+    }
+}
