@@ -33,6 +33,11 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(response)
             }
         }
+        route("/"){
+            get{
+                call.respond("AAA")
+            }
+        }
     }
 
 /*    install(KodeinFeature) {
