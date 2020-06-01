@@ -32,7 +32,7 @@ fun Application.module(testing: Boolean = false) {
                     .setPrettyPrinting()
                     .create()
                 val response = gson.toJson(repos.getAll())
-                call.respond(response)
+                call.respond(HttpStatusCode.Accepted,response)
             }
         }
         route("/"){
