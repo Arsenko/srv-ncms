@@ -28,13 +28,13 @@ fun Application.module(testing: Boolean = false) {
     val repos by kodein().instance<PostRepositoryBasic>()
     install(Routing) {
         route("/api/v1/posts") {
-            get("/") {
+            get {
                 val response = repos.getAll().map(PostDto.Companion::generateComp)
                 call.respond(response)
             }
         }
         route("/"){
-            get("/") {
+            get {
                 val response = repos.getAll().map(PostDto.Companion::generateComp)
                 call.respond(response)
             }
