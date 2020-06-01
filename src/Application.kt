@@ -1,5 +1,6 @@
 package com.minnullin
 
+import PostRepository
 import PostRepositoryBasic
 import com.google.gson.GsonBuilder
 import com.minnullin.models.PostType
@@ -13,7 +14,10 @@ import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.route
+import org.kodein.di.generic.bind
 import org.kodein.di.generic.instance
+import org.kodein.di.generic.singleton
+import org.kodein.di.ktor.KodeinFeature
 import org.kodein.di.ktor.kodein
 import ru.minnullin.Post
 import java.util.*
@@ -24,7 +28,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    val repos by kodein().instance<PostRepositoryBasic>()
+    val repos=PostRepositoryBasic()
     install(Routing) {
         route("/api/v1/posts/") {
             get {
@@ -41,13 +45,6 @@ fun Application.module(testing: Boolean = false) {
             }
         }
     }
-
-/*    install(KodeinFeature) {
-        bind<PostRepository>() with singleton {
-            PostRepositoryBasic().apply {
-            }
-        }
-    }*/
 
     //сборщик Json не используется
     install(ContentNegotiation) {
