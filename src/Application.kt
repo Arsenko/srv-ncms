@@ -26,7 +26,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
     val repos by kodein().instance<PostRepositoryBasic>()
     install(Routing) {
-        route("/api/v1/posts") {
+        route("/api/v1/posts/") {
             get {
                 val gson = GsonBuilder()
                     .setPrettyPrinting()
