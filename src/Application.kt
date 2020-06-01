@@ -33,12 +33,6 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(response)
             }
         }
-        route("/"){
-            get {
-                val response = repos.getAll().map(PostDto.Companion::generateComp)
-                call.respond(response)
-            }
-        }
     }
 
 /*    install(KodeinFeature) {
