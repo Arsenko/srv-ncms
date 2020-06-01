@@ -1,8 +1,10 @@
 package ru.minnullin
 
+import com.minnullin.models.PostType
 import java.util.*
 
 data class Post(
+    val id:Long,
     val authorName: String,
     val authorDrawable: Int,
     val bodyText: String,
