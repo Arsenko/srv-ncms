@@ -41,12 +41,12 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
-    install(KodeinFeature) {
+/*    install(KodeinFeature) {
         bind<PostRepository>() with singleton {
             PostRepositoryBasic().apply {
             }
         }
-    }
+    }*/
 
     //сборщик Json
     install(ContentNegotiation) {
