@@ -4,13 +4,15 @@ import com.minnullin.models.PostType
 import java.util.*
 
 data class Post(
-    val id:Long,
+    val id:Int,
     val authorName: String,
     val authorDrawable: Int,
     val bodyText: String,
     val postDate: Date = Date(),
     val repostPost:Post?,
     val postType: PostType,
+    var dislikeCounter:Int,
+    var dislikedByMe:Boolean = false,
     var likeCounter: Int,
     var likedByMe: Boolean = false,
     var commentCounter: Int,

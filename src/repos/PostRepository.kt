@@ -1,3 +1,4 @@
+import com.minnullin.PostDto
 import ru.minnullin.Post
 
 interface PostRepository{

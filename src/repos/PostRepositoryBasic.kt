@@ -1,10 +1,13 @@
+import com.minnullin.PostDto
+import com.minnullin.models.CounterChangeDto
+import com.minnullin.models.CounterType
 import com.minnullin.models.PostType
 import ru.minnullin.Post
 import java.util.*
 
 class PostRepositoryBasic :PostRepository{
-    var id:Long=0
-    var postlist= listOf(
+    var id:Int=0
+    private var postlist= mutableListOf(
         Post(
             getAutoIncrementedId(),
             "netlogy",
@@ -13,6 +16,8 @@ class PostRepositoryBasic :PostRepository{
             Date(),
             null,
             PostType.Post,
+            2,
+            false,
             0,
             false,
             8,
@@ -29,6 +34,8 @@ class PostRepositoryBasic :PostRepository{
             Date(),
             null,
             PostType.Event,
+            3,
+            true,
             0,
             false,
             8,
@@ -45,6 +52,8 @@ class PostRepositoryBasic :PostRepository{
             Date(),
             null,
             PostType.Video,
+            4,
+            false,
             0,
             false,
             8,
@@ -63,6 +72,8 @@ class PostRepositoryBasic :PostRepository{
             PostType.Advertising,
             0,
             false,
+            0,
+            false,
             8,
             2,
             null,
@@ -73,9 +84,21 @@ class PostRepositoryBasic :PostRepository{
     override suspend fun getAll(): List<Post> {
         return postlist
     }
-    private fun getAutoIncrementedId(): Long {
+    private fun getAutoIncrementedId(): Int {
         id++
         return id
+    }
+    //работает пока нет удаления, потом переписать
+    fun changePostCounter(model:CounterChangeDto):Post{
+        var postToChange= postlist[model.id]
+        when(model.counterType){
+            CounterType.Like->postToChange.likeCounter=model.counter
+            CounterType.Dislike->postToChange.dislikeCounter=model.counter
+            CounterType.Comment->postToChange.commentCounter=model.counter
+            CounterType.Share->postToChange.shareCounter=model.counter
+        }
+        postlist[model.id]=postToChange
+        return postToChange
     }
 
 }

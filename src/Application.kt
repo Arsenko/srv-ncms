@@ -1,24 +1,21 @@
 package com.minnullin
 
-import PostRepository
 import PostRepositoryBasic
-import com.google.gson.GsonBuilder
+import com.minnullin.models.CounterChangeDto
 import com.minnullin.models.PostType
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
+import io.ktor.application.log
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
 import io.ktor.http.HttpStatusCode
+import io.ktor.request.receive
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
+import io.ktor.routing.post
 import io.ktor.routing.route
-import org.kodein.di.generic.bind
-import org.kodein.di.generic.instance
-import org.kodein.di.generic.singleton
-import org.kodein.di.ktor.KodeinFeature
-import org.kodein.di.ktor.kodein
 import ru.minnullin.Post
 import java.util.*
 
@@ -32,21 +29,24 @@ fun Application.module(testing: Boolean = false) {
     install(Routing) {
         route("/api/v1/posts/") {
             get {
-                val gson = GsonBuilder()
-                    .setPrettyPrinting()
-                    .create()
-                val response = gson.toJson(repos.getAll())
-                call.respond(HttpStatusCode.Accepted,response)
+                val respond=repos.getAll().map(PostDto.Companion::generateComp)
+                call.respond(respond)
+            }
+        }
+        route("/api/v1/posts/changeCounter"){
+            post {
+                val input=call.receive<CounterChangeDto>()
+                val model=CounterChangeDto(input.id,input.counter,input.counterType)
+                call.respond(repos.changePostCounter(model))
             }
         }
         route("/"){
             get{
-                call.respond(HttpStatusCode.Accepted,"aaa")
+                call.respond(HttpStatusCode.Accepted,"test completed")
             }
         }
     }
 
-    //сборщик Json не используется
     install(ContentNegotiation) {
         gson {
             setPrettyPrinting()
@@ -56,7 +56,7 @@ fun Application.module(testing: Boolean = false) {
 }
 
 class PostDto(
-    val id: Long,
+    val id: Int,
     val authorName: String,
     val authorDrawable: Int,
     val bodyText: String,
