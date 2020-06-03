@@ -29,7 +29,7 @@ fun Application.module(testing: Boolean = false) {
     install(Routing) {
         route("/api/v1/posts/") {
             get {
-                val respond=repos.getAll().map(PostDto.Companion::generateComp)
+                val respond=repos.getAll()//.map(PostDto.Companion::generateComp)
                 call.respond(respond)
             }
         }
@@ -56,22 +56,22 @@ fun Application.module(testing: Boolean = false) {
 }
 
 class PostDto(
-    val id: Int,
-    val authorName: String,
-    val authorDrawable: Int,
-    val bodyText: String,
-    val postDate: Date = Date(),
-    val repostPost: Post?,
-    val postType: PostType,
-    var dislikeCounter: Int,
-    var dislikedByMe: Boolean = false,
-    var likeCounter: Int,
-    var likedByMe: Boolean = false,
-    var commentCounter: Int,
-    var shareCounter: Int,
-    val location: Pair<Double, Double>?,
-    val link: String?,
-    var postImage: Int?
+    val id: Int, //
+    val authorName: String, //
+    val authorDrawable: Int,  //
+    val bodyText: String,  //
+    val postDate: Date = Date(), //
+    val repostPost: Post?,  //
+    val postType: PostType,  //
+    var dislikeCounter: Int,  //
+    var dislikedByMe: Boolean = false,  //
+    var likeCounter: Int,  //
+    var likedByMe: Boolean = false,  //
+    var commentCounter: Int,  //
+    var shareCounter: Int,  //
+    val location: Pair<Double, Double>?,  //
+    val link: String?,  //
+    var postImage: Int?  //
 ) {
     companion object {
         fun generateComp(model: Post) = PostDto(
