@@ -27,17 +27,10 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 fun Application.module(testing: Boolean = false) {
     val repos=PostRepositoryBasic()
     install(Routing) {
-        route("/api/v1/posts/") {
+        route("/api/v1/posts") {
             get {
-                val respond=repos.getAll()//.map(PostDto.Companion::generateComp)
+                val respond=repos.getAll().map(PostDto.Companion::generateComp)
                 call.respond(respond)
-            }
-        }
-        route("/api/v1/posts/changeCounter"){
-            post {
-                val input=call.receive<CounterChangeDto>()
-                val model=CounterChangeDto(input.id,input.counter,input.counterType)
-                call.respond(repos.changePostCounter(model))
             }
         }
         route("/"){
