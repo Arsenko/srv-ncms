@@ -89,16 +89,20 @@ class PostRepositoryBasic :PostRepository{
         return id
     }
     //работает пока нет удаления, потом переписать
-    fun changePostCounter(model:CounterChangeDto):Post{
-        var postToChange= postlist[model.id]
-        when(model.counterType){
-            CounterType.Like->postToChange.likeCounter=model.counter
-            CounterType.Dislike->postToChange.dislikeCounter=model.counter
-            CounterType.Comment->postToChange.commentCounter=model.counter
-            CounterType.Share->postToChange.shareCounter=model.counter
+    fun changePostCounter(model:CounterChangeDto):Boolean{
+        try {
+            var postToChange = postlist[model.id]
+            when (model.counterType) {
+                CounterType.Like -> postToChange.likeCounter = model.counter
+                CounterType.Dislike -> postToChange.dislikeCounter = model.counter
+                CounterType.Comment -> postToChange.commentCounter = model.counter
+                CounterType.Share -> postToChange.shareCounter = model.counter
+            }
+            postlist[model.id] = postToChange
+            return true
+        }catch (e:Exception){
+            return false
         }
-        postlist[model.id]=postToChange
-        return postToChange
     }
 
 }

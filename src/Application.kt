@@ -36,9 +36,11 @@ fun Application.module(testing: Boolean = false) {
         route("/api/v1/posts/changeCounter"){
             post {
                 val input=call.receive<CounterChangeDto>()
-                //val model=CounterChangeDto(input.id,input.counter,input.counterType)
-                repos.changePostCounter(input)
-                call.respond(HttpStatusCode.Accepted)
+                val model=CounterChangeDto(input.id,input.counter,input.counterType)
+                if(repos.changePostCounter(input)){
+                    call.respond(HttpStatusCode.Accepted)
+                }
+                else call.respond(HttpStatusCode.BadRequest)
             }
         }
         route("/"){
