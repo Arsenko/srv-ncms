@@ -6,7 +6,7 @@ import ru.minnullin.Post
 import java.util.*
 
 class PostRepositoryBasic :PostRepository{
-    var id:Int=0
+    var id:Int=-1
     private var postlist= mutableListOf(
         Post(
             getAutoIncrementedId(),
