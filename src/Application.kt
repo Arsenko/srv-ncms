@@ -1,6 +1,9 @@
 package com.minnullin
 
 import PostRepositoryBasic
+import com.google.gson.Gson
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import com.minnullin.models.CounterChangeDto
 import com.minnullin.models.PostType
 import io.ktor.application.Application
@@ -9,6 +12,7 @@ import io.ktor.application.install
 import io.ktor.application.log
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
+import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
 import io.ktor.response.respond
@@ -35,8 +39,9 @@ fun Application.module(testing: Boolean = false) {
         }
         route("/api/v1/posts/changeCounter"){
             post {
-                val input=call.receive<CounterChangeDto>()
-                val model=CounterChangeDto(input.id,input.counter,input.counterType)
+                val input=call.receive<JsonObject>()
+                val model=Gson().fromJson(input,CounterChangeDto::class.java)
+                //val model=CounterChangeDto(input.,input.counter,input.counterType)
                 call.respond(repos.changePostCounter(model))
             }
         }
