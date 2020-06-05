@@ -41,7 +41,7 @@ fun Application.module(testing: Boolean = false) {
             get {
                 val input=call.receive<CounterChangeDto>()
                 //val model=Gson().fromJson(input,CounterChangeDto::class.java)
-                val model=CounterChangeDto(input.id,input.counter,input.counterType)
+                val model=CounterChangeDto(input.id,input.counter)
                 call.respond(repos.changePostCounter(model))
             }
         }
