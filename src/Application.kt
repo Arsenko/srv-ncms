@@ -6,6 +6,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.minnullin.models.CounterChangeDto
 import com.minnullin.models.PostType
+import com.sun.xml.internal.ws.api.pipe.ContentType
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
@@ -15,6 +16,7 @@ import io.ktor.gson.gson
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
+import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Routing
 import io.ktor.routing.get
@@ -39,10 +41,21 @@ fun Application.module(testing: Boolean = false) {
         }
         route("/api/v1/posts/changeCounter"){
             post {
-                val input=call.receive<CounterChangeDto>()
+                val input=call.receiveText()
+                val gson=Gson()
+                val receiveModel=gson.fromJson(input,CounterChangeDto::class.java)
+                receiveModel.let {
+                    if(repos.changePostCounter(it)){
+                        call.respond(HttpStatusCode.Accepted)
+                    }else{
+                        call.respond(HttpStatusCode.BadRequest)
+                    }
+
+                }
+                //val input=call.receive<CounterChangeDto.Companion>()
                 //val model=Gson().fromJson(input,CounterChangeDto::class.java)
-                val model=CounterChangeDto(input.id,input.counter,input.counterType)
-                call.respond(repos.changePostCounter(model))
+                //val model=CounterChangeDto(input.id,input.counter,input.counterType)
+                //call.respond(repos.changePostCounter(model))
             }
         }
         route("/"){
