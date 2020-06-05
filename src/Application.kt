@@ -39,9 +39,9 @@ fun Application.module(testing: Boolean = false) {
         }
         route("/api/v1/posts/changeCounter"){
             post {
-                val input=call.receive<JsonObject>()
-                val model=Gson().fromJson(input,CounterChangeDto::class.java)
-                //val model=CounterChangeDto(input.,input.counter,input.counterType)
+                val input=call.receive<CounterChangeDto>()
+                //val model=Gson().fromJson(input,CounterChangeDto::class.java)
+                val model=CounterChangeDto(input.id,input.counter,input.counterType)
                 call.respond(repos.changePostCounter(model))
             }
         }
