@@ -4,37 +4,32 @@ import com.minnullin.models.PostType
 import java.util.*
 
 data class Post(
-    val id:Int,
+    val id:Int?,
     val authorName: String,
     val authorDrawable: Int,
     val bodyText: String,
     val postDate: Date = Date(),
     val repostPost:Post?,
     val postType: PostType,
-    var dislikeCounter:Int,
-    var dislikedByMe:Boolean = false,
-    var likeCounter: Int,
-    var likedByMe: Boolean = false,
-    var commentCounter: Int,
-    var shareCounter: Int,
+    val dislikeCounter:Int,
+    val dislikedByMe:Boolean = false,
+    val likeCounter: Int,
+    val likedByMe: Boolean = false,
+    val commentCounter: Int,
+    val shareCounter: Int,
     val location: Pair<Double, Double>?,
     val link: String?,
-    var postImage: Int?
+    val postImage: Int?
 
 ) {
-    fun likeIncrease() {
-        likeCounter = likeCounter.inc()
-    }
+    fun likeChange(counter:Int):Post =
+        copy(likeCounter=counter)
 
-    fun likeDecrease() {
-        likeCounter = likeCounter.dec()
-    }
+    fun dislikeChange(counter:Int):Post=
+        copy(dislikeCounter=counter)
+    fun commentChange(counter:Int) :Post =
+        copy(commentCounter = counter)
 
-    fun commentIncrease() {
-        commentCounter = commentCounter.inc()
-    }
-
-    fun shareIncrease() {
-        shareCounter = shareCounter.inc()
-    }
+    fun shareChange(counter:Int) :Post =
+        copy(shareCounter = counter)
 }

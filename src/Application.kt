@@ -22,6 +22,10 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
 import ru.minnullin.Post
 import java.util.*
 
@@ -31,23 +35,100 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    val repos=PostRepositoryBasic()
+    val repos = PostRepositoryBasic()
+    val debugListOfPost = mutableListOf(
+        Post(
+            null,
+            "netlogy",
+            2,
+            "First post in our network!",
+            Date(),
+            null,
+            PostType.Post,
+            2,
+            false,
+            0,
+            false,
+            8,
+            2,
+            null,
+            null,
+            null
+        ),
+        Post(
+            null,
+            "etlogy",
+            2,
+            "Second post in our network!",
+            Date(),
+            null,
+            PostType.Event,
+            3,
+            true,
+            0,
+            false,
+            8,
+            2,
+            Pair(60.0, 85.0),
+            null,
+            null
+        ),
+        Post(
+            null,
+            "tlogy",
+            2,
+            "Third post in our network!",
+            Date(),
+            null,
+            PostType.Video,
+            4,
+            false,
+            0,
+            false,
+            8,
+            2,
+            null,
+            "https://www.youtube.com/watch?v=lO5_E9aObE0",
+            null
+        ),
+        Post(
+            null,
+            "logy",
+            2,
+            "Fourth post in our network!",
+            Date(),
+            null,
+            PostType.Advertising,
+            0,
+            false,
+            0,
+            false,
+            8,
+            2,
+            null,
+            "https://l.netology.ru/marketing_director_guide?utm_source=vk&utm_medium=smm&utm_campaign=bim_md_oz_vk_smm_guide&utm_content=12052020",
+            1
+        )
+    )
+    CoroutineScope(IO).launch {
+        for (i in debugListOfPost) {
+            repos.addPost(i)
+        }
+    }
     install(Routing) {
         route("/api/v1/posts/") {
             get {
-                val respond=repos.getAll().map(PostDto.Companion::generateComp)
+                val respond = repos.getAll().map(PostDto.Companion::generateComp)
                 call.respond(respond)
             }
         }
-        route("/api/v1/posts/changeCounter"){
+        route("/api/v1/posts/changeCounter") {
             post {
-                val input=call.receiveText()
-                val gson=Gson()
-                val receiveModel=gson.fromJson(input,CounterChangeDto::class.java)
+                val receiveModel: CounterChangeDto = call.receive()
                 receiveModel.let {
-                    if(repos.changePostCounter(it)){
+                    if (repos.changePostCounter(it)) {
                         call.respond(HttpStatusCode.Accepted)
-                    }else{
+                    } else {
                         call.respond(HttpStatusCode.BadRequest)
                     }
 
@@ -58,9 +139,9 @@ fun Application.module(testing: Boolean = false) {
                 //call.respond(repos.changePostCounter(model))
             }
         }
-        route("/"){
-            get{
-                call.respond(HttpStatusCode.Accepted,"test completed")
+        route("/") {
+            get {
+                call.respond(HttpStatusCode.Accepted, "test completed")
             }
         }
     }
@@ -92,24 +173,26 @@ class PostDto(
     var postImage: Int?  //
 ) {
     companion object {
-        fun generateComp(model: Post) = PostDto(
-            id = model.id,
-            authorName = model.authorName,
-            authorDrawable = model.authorDrawable,
-            bodyText = model.bodyText,
-            postDate = model.postDate,
-            repostPost = model.repostPost,
-            postType = model.postType,
-            dislikeCounter = model.dislikeCounter,
-            dislikedByMe = model.dislikedByMe,
-            likeCounter = model.likeCounter,
-            likedByMe = model.likedByMe,
-            commentCounter = model.commentCounter,
-            shareCounter = model.shareCounter,
-            location = model.location,
-            link = model.link,
-            postImage = model.postImage
-        )
+        fun generateComp(model: Post) = model.id?.let {
+            PostDto(
+                id = it,
+                authorName = model.authorName,
+                authorDrawable = model.authorDrawable,
+                bodyText = model.bodyText,
+                postDate = model.postDate,
+                repostPost = model.repostPost,
+                postType = model.postType,
+                dislikeCounter = model.dislikeCounter,
+                dislikedByMe = model.dislikedByMe,
+                likeCounter = model.likeCounter,
+                likedByMe = model.likedByMe,
+                commentCounter = model.commentCounter,
+                shareCounter = model.shareCounter,
+                location = model.location,
+                link = model.link,
+                postImage = model.postImage
+            )
+        }
     }
 }
 

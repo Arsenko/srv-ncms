@@ -1,108 +1,70 @@
-import com.minnullin.PostDto
 import com.minnullin.models.CounterChangeDto
 import com.minnullin.models.CounterType
 import com.minnullin.models.PostType
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import ru.minnullin.Post
 import java.util.*
 
-class PostRepositoryBasic :PostRepository{
-    var id:Int=-1
-    private var postlist= mutableListOf(
-        Post(
-            getAutoIncrementedId(),
-            "netlogy",
-            2,
-            "First post in our network!",
-            Date(),
-            null,
-            PostType.Post,
-            2,
-            false,
-            0,
-            false,
-            8,
-            2,
-            null,
-            null,
-            null
-        ),
-        Post(
-            getAutoIncrementedId(),
-            "etlogy",
-            2,
-            "Second post in our network!",
-            Date(),
-            null,
-            PostType.Event,
-            3,
-            true,
-            0,
-            false,
-            8,
-            2,
-            Pair(60.0, 85.0),
-            null,
-            null
-        ),
-        Post(
-            getAutoIncrementedId(),
-            "tlogy",
-            2,
-            "Third post in our network!",
-            Date(),
-            null,
-            PostType.Video,
-            4,
-            false,
-            0,
-            false,
-            8,
-            2,
-            null,
-            "https://www.youtube.com/watch?v=lO5_E9aObE0",
-            null
-        ),
-        Post(
-            getAutoIncrementedId(),
-            "logy",
-            2,
-            "Fourth post in our network!",
-            Date(),
-            null,
-            PostType.Advertising,
-            0,
-            false,
-            0,
-            false,
-            8,
-            2,
-            null,
-            "https://l.netology.ru/marketing_director_guide?utm_source=vk&utm_medium=smm&utm_campaign=bim_md_oz_vk_smm_guide&utm_content=12052020",
-            1
-        )
-    )
+class PostRepositoryBasic : PostRepository {
+    var id: Int = -1
+    private val mutex = Mutex()
+    private var postlist = mutableListOf<Post>()
+
     override suspend fun getAll(): List<Post> {
         return postlist
     }
-    private fun getAutoIncrementedId(): Int {
-        id++
-        return id
+
+    private suspend fun getAutoIncrementedId(): Int {
+        mutex.withLock {
+            id++
+            return id
+        }
     }
+
+    suspend fun addPost(post: Post): Boolean {
+        return if (post.id == null) {
+            val postWithId = Post(
+                id = getAutoIncrementedId(),
+                authorName = post.authorName,
+                authorDrawable = post.authorDrawable,
+                bodyText = post.bodyText,
+                postDate = post.postDate,
+                repostPost = post.repostPost,
+                postType = post.postType,
+                dislikeCounter = post.dislikeCounter,
+                dislikedByMe = post.dislikedByMe,
+                likeCounter = post.likeCounter,
+                likedByMe = post.likedByMe,
+                commentCounter = post.commentCounter,
+                shareCounter = post.shareCounter,
+                location = post.location,
+                link = post.link,
+                postImage = post.postImage
+            )
+            postlist.add(postWithId)
+            true
+        } else false
+    }
+
     //работает пока нет удаления, потом переписать
-    fun changePostCounter(model:CounterChangeDto):Boolean{
-        try {
-            var postToChange = postlist[model.id]
-            when (model.counterType) {
-                CounterType.Like -> postToChange.likeCounter = model.counter
-                CounterType.Dislike -> postToChange.dislikeCounter = model.counter
-                CounterType.Comment -> postToChange.commentCounter = model.counter
-                CounterType.Share -> postToChange.shareCounter = model.counter
-                else-> {}
+    suspend fun changePostCounter(model: CounterChangeDto): Boolean {
+        mutex.withLock {
+            return try {
+                var postToChange = postlist[model.id]
+                when (model.counterType) {
+                    CounterType.Like -> postToChange = postToChange.likeChange(model.counter)
+                    CounterType.Dislike -> postToChange = postToChange.dislikeChange(model.counter)
+                    CounterType.Comment -> postToChange = postToChange.commentChange(model.counter)
+                    CounterType.Share -> postToChange = postToChange.shareChange(model.counter)
+                    else -> {
+                    }
+                }
+                postlist[model.id] = postToChange
+                true
+            } catch (e: Exception) {
+                false
             }
-            postlist[model.id] = postToChange
-            return true
-        }catch (e:Exception){
-            return false
         }
     }
 
