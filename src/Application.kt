@@ -1,5 +1,6 @@
 package com.minnullin
 
+import PostRepository
 import PostRepositoryBasic
 import com.google.gson.Gson
 import com.google.gson.JsonElement
@@ -12,6 +13,9 @@ import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.application.log
 import io.ktor.features.ContentNegotiation
+import io.ktor.features.NotFoundException
+import io.ktor.features.ParameterConversionException
+import io.ktor.features.StatusPages
 import io.ktor.gson.gson
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode
@@ -26,6 +30,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import org.kodein.di.generic.bind
+import org.kodein.di.generic.eagerSingleton
+import org.kodein.di.ktor.KodeinFeature
 import ru.minnullin.Post
 import java.util.*
 
@@ -115,6 +122,22 @@ fun Application.module(testing: Boolean = false) {
             repos.addPost(i)
         }
     }
+
+    install(KodeinFeature) {
+        bind<PostRepository>() with eagerSingleton { PostRepositoryBasic() }
+    }
+
+    install(StatusPages) {
+        exception<NotFoundException> { e ->
+            call.respond(HttpStatusCode.NotFound)
+            throw e
+        }
+        exception<ParameterConversionException> { e ->
+            call.respond(HttpStatusCode.BadRequest)
+            throw e
+        }
+    }
+
     install(Routing) {
         route("/api/v1/posts/") {
             get {
@@ -122,28 +145,59 @@ fun Application.module(testing: Boolean = false) {
                 call.respond(respond)
             }
         }
+
+        route("/api/v1/posts/{id}") {
+            get {
+                val id = call.parameters["id"]?.toIntOrNull() ?: throw ParameterConversionException(
+                    "id",
+                    "Int"
+                )
+                val response = repos.getById(id)
+                if (response != null) {
+                    call.respond(response)
+                }else{
+                    call.respond(HttpStatusCode.NotFound)
+                }
+            }
+        }
+
+        route("/api/v1/posts/{id}/delete") {
+            get {
+                val id = call.parameters["id"]?.toIntOrNull() ?: throw ParameterConversionException(
+                    "id",
+                    "Int"
+                )
+                val response = repos.deleteById(id)
+                if (response) {
+                    call.respond(HttpStatusCode.Accepted)
+                }else{
+                    call.respond(HttpStatusCode.NotFound)
+                }
+            }
+        }
+
         route("/api/v1/posts/changeCounter") {
             post {
                 val receiveModel: CounterChangeDto = call.receive()
-                receiveModel.let {
-                    if (repos.changePostCounter(it)) {
-                        call.respond(HttpStatusCode.Accepted)
-                    } else {
-                        call.respond(HttpStatusCode.BadRequest)
+                receiveModel.let { outerIt ->
+                    repos.changePostCounter(outerIt).let {
+                        if (it != null) {
+                            call.respond(it)
+                        }else{
+                            call.respond(HttpStatusCode.BadRequest)
+                        }
                     }
 
                 }
-                //val input=call.receive<CounterChangeDto.Companion>()
-                //val model=Gson().fromJson(input,CounterChangeDto::class.java)
-                //val model=CounterChangeDto(input.id,input.counter,input.counterType)
-                //call.respond(repos.changePostCounter(model))
             }
         }
+
         route("/") {
             get {
                 call.respond(HttpStatusCode.Accepted, "test completed")
             }
         }
+
     }
 
     install(ContentNegotiation) {

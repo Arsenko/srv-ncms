@@ -1,18 +1,19 @@
 import com.minnullin.models.CounterChangeDto
 import com.minnullin.models.CounterType
-import com.minnullin.models.PostType
+import io.ktor.features.NotFoundException
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.minnullin.Post
-import java.util.*
 
 class PostRepositoryBasic : PostRepository {
-    var id: Int = -1
+    private var id: Int = -1
     private val mutex = Mutex()
     private var postlist = mutableListOf<Post>()
 
     override suspend fun getAll(): List<Post> {
-        return postlist
+        mutex.withLock {
+            return postlist.toList()
+        }
     }
 
     private suspend fun getAutoIncrementedId(): Int {
@@ -22,8 +23,8 @@ class PostRepositoryBasic : PostRepository {
         }
     }
 
-    suspend fun addPost(post: Post): Boolean {
-        return if (post.id == null) {
+    override suspend fun addPost(post: Post): Post? {
+        if (post.id == null) {
             val postWithId = Post(
                 id = getAutoIncrementedId(),
                 authorName = post.authorName,
@@ -43,29 +44,50 @@ class PostRepositoryBasic : PostRepository {
                 postImage = post.postImage
             )
             postlist.add(postWithId)
-            true
-        } else false
+            return postWithId
+        } else return null
     }
 
-    //работает пока нет удаления, потом переписать
-    suspend fun changePostCounter(model: CounterChangeDto): Boolean {
-        mutex.withLock {
-            return try {
-                var postToChange = postlist[model.id]
-                when (model.counterType) {
-                    CounterType.Like -> postToChange = postToChange.likeChange(model.counter)
-                    CounterType.Dislike -> postToChange = postToChange.dislikeChange(model.counter)
-                    CounterType.Comment -> postToChange = postToChange.commentChange(model.counter)
-                    CounterType.Share -> postToChange = postToChange.shareChange(model.counter)
-                    else -> {
-                    }
-                }
-                postlist[model.id] = postToChange
-                true
-            } catch (e: Exception) {
-                false
+    override suspend fun deleteById(id: Int): Boolean {
+        for (i in 0 until postlist.size) {
+            if (id == postlist[i].id) {
+                postlist.removeAt(i)
+                return true
             }
         }
+        return false
     }
 
+    override suspend fun getById(id: Int): Post? {
+        var postToReturn: Post? = null
+        for (i in 0 until postlist.size) {
+            if (id == postlist[i].id) {
+                postToReturn = postlist[i]
+            }
+        }
+        return postToReturn
+    }
+
+    override suspend fun changePostCounter(model: CounterChangeDto): Post? {
+        mutex.withLock {
+            var postToChange: Post? = null
+            for (i in 0 until postlist.size) {
+                if (model.id == postlist[i].id) {
+                    postToChange = postlist[i]
+                }
+            }
+            if (postToChange != null) {
+                when (model.counterType) {
+                    CounterType.Like -> postToChange.likeChange(model.counter)
+                    CounterType.Dislike -> postToChange.dislikeChange(model.counter)
+                    CounterType.Comment -> postToChange.commentChange(model.counter)
+                    CounterType.Share -> postToChange.shareChange(model.counter)
+                }.also {
+                    postlist[model.id] = it
+                    return it
+                }
+            }
+            return postToChange
+        }
+    }
 }
