@@ -24,38 +24,42 @@ class PostRepositoryBasic : PostRepository {
     }
 
     override suspend fun addPost(post: Post): Post? {
-        if (post.id == null) {
-            val postWithId = Post(
-                id = getAutoIncrementedId(),
-                authorName = post.authorName,
-                authorDrawable = post.authorDrawable,
-                bodyText = post.bodyText,
-                postDate = post.postDate,
-                repostPost = post.repostPost,
-                postType = post.postType,
-                dislikeCounter = post.dislikeCounter,
-                dislikedByMe = post.dislikedByMe,
-                likeCounter = post.likeCounter,
-                likedByMe = post.likedByMe,
-                commentCounter = post.commentCounter,
-                shareCounter = post.shareCounter,
-                location = post.location,
-                link = post.link,
-                postImage = post.postImage
-            )
-            postlist.add(postWithId)
-            return postWithId
-        } else return null
+        mutex.withLock {
+            if (post.id == null) {
+                val postWithId = Post(
+                    id = getAutoIncrementedId(),
+                    authorName = post.authorName,
+                    authorDrawable = post.authorDrawable,
+                    bodyText = post.bodyText,
+                    postDate = post.postDate,
+                    repostPost = post.repostPost,
+                    postType = post.postType,
+                    dislikeCounter = post.dislikeCounter,
+                    dislikedByMe = post.dislikedByMe,
+                    likeCounter = post.likeCounter,
+                    likedByMe = post.likedByMe,
+                    commentCounter = post.commentCounter,
+                    shareCounter = post.shareCounter,
+                    location = post.location,
+                    link = post.link,
+                    postImage = post.postImage
+                )
+                postlist.add(postWithId)
+                return postWithId
+            } else return null
+        }
     }
 
     override suspend fun deleteById(id: Int): Boolean {
-        for (i in 0 until postlist.size) {
-            if (id == postlist[i].id) {
-                postlist.removeAt(i)
-                return true
+        mutex.withLock {
+            for (i in 0 until postlist.size) {
+                if (id == postlist[i].id) {
+                    postlist.removeAt(i)
+                    return true
+                }
             }
+            return false
         }
-        return false
     }
 
     override suspend fun getById(id: Int): Post? {
