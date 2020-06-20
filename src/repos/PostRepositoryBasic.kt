@@ -1,9 +1,11 @@
 import com.minnullin.models.CounterChangeDto
 import com.minnullin.models.CounterType
+import com.minnullin.models.Post
 import io.ktor.features.NotFoundException
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import ru.minnullin.Post
+import java.io.NotSerializableException
 
 class PostRepositoryBasic : PostRepository {
     private var id: Int = -1
@@ -23,7 +25,7 @@ class PostRepositoryBasic : PostRepository {
         }
     }
 
-    override suspend fun addPost(post: Post): Post? {
+    override suspend fun addPost(post: Post): Post {
         mutex.withLock {
             if (post.id == null) {
                 val postWithId = Post(
@@ -46,48 +48,59 @@ class PostRepositoryBasic : PostRepository {
                 )
                 postlist.add(postWithId)
                 return postWithId
-            } else return null
+            } else throw NotSerializableException()
         }
     }
 
-    override suspend fun deleteById(id: Int): Boolean {
+    override suspend fun deleteById(id: Int,authorName:String): HttpStatusCode {
         mutex.withLock {
-            for (i in 0 until postlist.size) {
-                if (id == postlist[i].id) {
-                    postlist.removeAt(i)
-                    return true
+            val findPost=postlist.find{
+                it.id==id
+            }
+            if (findPost != null) {
+                if(findPost.authorName!=authorName){
+                    return HttpStatusCode.Forbidden
+                }
+                for (i in 0 until postlist.size) {
+                    if (id == postlist[i].id) {
+                        postlist.removeAt(i)
+                        return HttpStatusCode.Accepted
+                    }
                 }
             }
-            return false
+            return HttpStatusCode.NotFound
         }
     }
 
-    override suspend fun getById(id: Int): Post? {
+    override suspend fun getById(id: Int): Post {
         var postToReturn: Post? = null
         for (i in 0 until postlist.size) {
             if (id == postlist[i].id) {
                 postToReturn = postlist[i]
             }
         }
+        if(postToReturn==null){
+            throw NotFoundException()
+        }
         return postToReturn
     }
 
-    override suspend fun changePostCounter(model: CounterChangeDto): Post? {
+    override suspend fun changePostCounter(id:Int,counter:Int,counterType:CounterType): Post? {
         mutex.withLock {
             var postToChange: Post? = null
             for (i in 0 until postlist.size) {
-                if (model.id == postlist[i].id) {
+                if (id == postlist[i].id) {
                     postToChange = postlist[i]
                 }
             }
             if (postToChange != null) {
-                when (model.counterType) {
-                    CounterType.Like -> postToChange.likeChange(model.counter)
-                    CounterType.Dislike -> postToChange.dislikeChange(model.counter)
-                    CounterType.Comment -> postToChange.commentChange(model.counter)
-                    CounterType.Share -> postToChange.shareChange(model.counter)
+                when (counterType) {
+                    CounterType.Like -> postToChange.likeChange(counter)
+                    CounterType.Dislike -> postToChange.dislikeChange(counter)
+                    CounterType.Comment -> postToChange.commentChange(counter)
+                    CounterType.Share -> postToChange.shareChange(counter)
                 }.also {
-                    postlist[model.id] = it
+                    postlist[id] = it
                     return it
                 }
             }

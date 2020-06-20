@@ -1,40 +1,43 @@
 package com.minnullin
 
+import JWTTokenService
 import PostRepository
 import PostRepositoryBasic
-import com.google.gson.Gson
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
-import com.minnullin.models.CounterChangeDto
+import com.minnullin.models.Post
 import com.minnullin.models.PostType
-import com.sun.xml.internal.ws.api.pipe.ContentType
+import com.minnullin.repos.UserRepository
+import com.minnullin.repos.UserRepositoryBasic
+import com.minnullin.routing.RoutingV1
+import com.minnullin.service.FileService
+import com.minnullin.service.PostService
+import com.minnullin.service.UserService
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.application.install
-import io.ktor.application.log
+import io.ktor.auth.Authentication
+import io.ktor.auth.jwt.jwt
 import io.ktor.features.ContentNegotiation
 import io.ktor.features.NotFoundException
 import io.ktor.features.ParameterConversionException
 import io.ktor.features.StatusPages
 import io.ktor.gson.gson
-import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpStatusCode
-import io.ktor.request.receive
-import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.routing.Routing
-import io.ktor.routing.get
-import io.ktor.routing.post
-import io.ktor.routing.route
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.kodein.di.generic.bind
 import org.kodein.di.generic.eagerSingleton
+import org.kodein.di.generic.instance
+import org.kodein.di.generic.with
 import org.kodein.di.ktor.KodeinFeature
-import ru.minnullin.Post
+import org.kodein.di.ktor.kodein
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
 import java.util.*
+import javax.naming.ConfigurationException
 
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -123,8 +126,45 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 
+
+
     install(KodeinFeature) {
+        constant(tag = "upload-dir") with (environment.config.propertyOrNull("ktor.upload.dir")?.getString()
+            ?: throw ConfigurationException("Upload dir is not specified"))
+        bind<PostService>() with eagerSingleton { PostService(instance()) }
+        bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
         bind<PostRepository>() with eagerSingleton { PostRepositoryBasic() }
+        bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
+        bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
+        bind<UserRepository>() with eagerSingleton { UserRepositoryBasic() }
+        bind<UserService>() with eagerSingleton {
+            UserService(instance(), instance(), instance()).apply {
+                runBlocking {
+                    this@apply.save("vasya", "password")
+                }
+            }
+        }
+        bind<RoutingV1>() with eagerSingleton {
+            RoutingV1(
+                instance(tag = "upload-dir"),
+                instance(),
+                instance(),
+                instance()
+            )
+        }
+    }
+
+    install(Authentication) {
+        jwt {
+            val jwtService by kodein().instance<JWTTokenService>()
+            verifier(jwtService.verifier)
+            val userService by kodein().instance<UserService>()
+
+            validate {
+                val id = it.payload.getClaim("id").asInt()
+                userService.getModelById(id)
+            }
+        }
     }
 
     install(StatusPages) {
@@ -136,68 +176,15 @@ fun Application.module(testing: Boolean = false) {
             call.respond(HttpStatusCode.BadRequest)
             throw e
         }
+        exception<Throwable> { e ->
+            call.respond(HttpStatusCode.InternalServerError)
+            throw e
+        }
     }
 
     install(Routing) {
-        route("/api/v1/posts/") {
-            get {
-                val respond = repos.getAll().map(PostDto.Companion::generateComp)
-                call.respond(respond)
-            }
-        }
-
-        route("/api/v1/posts/{id}") {
-            get {
-                val id = call.parameters["id"]?.toIntOrNull() ?: throw ParameterConversionException(
-                    "id",
-                    "Int"
-                )
-                val response = repos.getById(id)
-                if (response != null) {
-                    call.respond(response)
-                }else{
-                    call.respond(HttpStatusCode.NotFound)
-                }
-            }
-        }
-
-        route("/api/v1/posts/{id}/delete") {
-            get {
-                val id = call.parameters["id"]?.toIntOrNull() ?: throw ParameterConversionException(
-                    "id",
-                    "Int"
-                )
-                val response = repos.deleteById(id)
-                if (response) {
-                    call.respond(HttpStatusCode.Accepted)
-                }else{
-                    call.respond(HttpStatusCode.NotFound)
-                }
-            }
-        }
-
-        route("/api/v1/posts/changeCounter") {
-            post {
-                val receiveModel: CounterChangeDto = call.receive()
-                receiveModel.let { outerIt ->
-                    repos.changePostCounter(outerIt).let {
-                        if (it != null) {
-                            call.respond(it)
-                        }else{
-                            call.respond(HttpStatusCode.BadRequest)
-                        }
-                    }
-
-                }
-            }
-        }
-
-        route("/") {
-            get {
-                call.respond(HttpStatusCode.Accepted, "test completed")
-            }
-        }
-
+        val routingV1 by kodein().instance<RoutingV1>()
+        routingV1.setup(this)
     }
 
     install(ContentNegotiation) {
@@ -208,45 +195,4 @@ fun Application.module(testing: Boolean = false) {
     }
 }
 
-class PostDto(
-    val id: Int, //
-    val authorName: String, //
-    val authorDrawable: Int,  //
-    val bodyText: String,  //
-    val postDate: Date = Date(), //
-    val repostPost: Post?,  //
-    val postType: PostType,  //
-    var dislikeCounter: Int,  //
-    var dislikedByMe: Boolean = false,  //
-    var likeCounter: Int,  //
-    var likedByMe: Boolean = false,  //
-    var commentCounter: Int,  //
-    var shareCounter: Int,  //
-    val location: Pair<Double, Double>?,  //
-    val link: String?,  //
-    var postImage: Int?  //
-) {
-    companion object {
-        fun generateComp(model: Post) = model.id?.let {
-            PostDto(
-                id = it,
-                authorName = model.authorName,
-                authorDrawable = model.authorDrawable,
-                bodyText = model.bodyText,
-                postDate = model.postDate,
-                repostPost = model.repostPost,
-                postType = model.postType,
-                dislikeCounter = model.dislikeCounter,
-                dislikedByMe = model.dislikedByMe,
-                likeCounter = model.likeCounter,
-                likedByMe = model.likedByMe,
-                commentCounter = model.commentCounter,
-                shareCounter = model.shareCounter,
-                location = model.location,
-                link = model.link,
-                postImage = model.postImage
-            )
-        }
-    }
-}
 

@@ -1,6 +1,5 @@
-package ru.minnullin
+package com.minnullin.models
 
-import com.minnullin.models.PostType
 import java.util.*
 
 data class Post(
@@ -9,7 +8,7 @@ data class Post(
     val authorDrawable: Int,
     val bodyText: String,
     val postDate: Date = Date(),
-    val repostPost:Post?,
+    val repostPost: Post?,
     val postType: PostType,
     val dislikeCounter:Int,
     val dislikedByMe:Boolean = false,
@@ -22,14 +21,14 @@ data class Post(
     val postImage: Int?
 
 ) {
-    fun likeChange(counter:Int):Post =
+    fun likeChange(counter:Int): Post =
         copy(likeCounter=counter)
 
-    fun dislikeChange(counter:Int):Post=
+    fun dislikeChange(counter:Int): Post =
         copy(dislikeCounter=counter)
-    fun commentChange(counter:Int) :Post =
+    fun commentChange(counter:Int) : Post =
         copy(commentCounter = counter)
 
-    fun shareChange(counter:Int) :Post =
+    fun shareChange(counter:Int) : Post =
         copy(shareCounter = counter)
 }
