@@ -98,12 +98,12 @@ class RoutingV1(private val staticPath: String,
                         }
                     }
                 }
-            }
-            route("/media") {
-                post {
-                    val multipart = call.receiveMultipart()
-                    val response = fileService.save(multipart)
-                    call.respond(response)
+                route("/media") {
+                    post {
+                        val multipart = call.receiveMultipart()
+                        val response = fileService.save(multipart)
+                        call.respond(response)
+                    }
                 }
             }
             route("/") {

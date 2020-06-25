@@ -2,6 +2,7 @@ package com.minnullin.service
 
 import com.minnullin.models.MediaResponseDto
 import com.minnullin.models.MediaType
+import com.sun.xml.internal.ws.api.message.Attachment
 import io.ktor.features.BadRequestException
 import io.ktor.features.UnsupportedMediaTypeException
 import io.ktor.http.ContentDisposition.Companion.File
@@ -15,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.io.core.use
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -52,7 +54,7 @@ class FileService(private val imagePath:String) {
                             }
                         }
                         part.dispose()
-                        response = MediaResponseDto(name, MediaType.Image)
+                        response = MediaResponseDto(name, MediaType.Image,File("$imagePath/$name"))
                         return@forEachPart
                     }
                 }
