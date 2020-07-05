@@ -28,7 +28,7 @@ class RoutingV1(private val staticPath: String,
 ) {
     fun setup(configuration: Routing){
         with(configuration){
-            route("/") {
+            route("/api/v1/") {
                 post("/registration") {
                     val input=call.receive<AuthenticationInDto>()
                     val response=userService.registration(input)

@@ -54,14 +54,15 @@ class UserService(
             throw AlreadyExistException("username already exist")
             null
         }else {
-            this.save(input.username, input.password)
+            this.save(input.username,input.password)
             return this.authenticate(input)
         }
     }
 
-    suspend fun save(username: String, password: String) {
+    suspend fun save(username: String, password: String):String {
         mutex.withLock {
             repos.save(User(username = username, password = passwordEncoder.encode(password)))
+            return tokenService.generate(repos.getByUsername(username)!!.id)
         }
     }
 

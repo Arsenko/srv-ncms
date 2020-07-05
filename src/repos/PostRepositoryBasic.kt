@@ -73,16 +73,18 @@ class PostRepositoryBasic : PostRepository {
     }
 
     override suspend fun getById(id: Int): Post {
-        var postToReturn: Post? = null
-        for (i in 0 until postlist.size) {
-            if (id == postlist[i].id) {
-                postToReturn = postlist[i]
+        mutex.withLock{
+            var postToReturn: Post? = null
+            for (i in 0 until postlist.size) {
+                if (id == postlist[i].id) {
+                    postToReturn = postlist[i]
+                }
             }
+            if (postToReturn == null) {
+                throw NotFoundException()
+            }
+            return postToReturn
         }
-        if(postToReturn==null){
-            throw NotFoundException()
-        }
-        return postToReturn
     }
 
     override suspend fun changePostCounter(id:Int,counter:Int,counterType:CounterType): Post? {
