@@ -45,7 +45,7 @@ class RoutingV1(private val staticPath: String,
                     call.respond(response)
                 }
             }
-            //authenticate {
+            authenticate {
                 route("/api/v1/") {
                     static("/static") {
                         files(staticPath)
@@ -104,7 +104,7 @@ class RoutingV1(private val staticPath: String,
                         val response = fileService.save(multipart)
                         call.respond(response)
                     }
-               // }
+                }
             }
             route("/") {
                 get {
