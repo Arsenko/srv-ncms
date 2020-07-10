@@ -13,9 +13,7 @@ class PostRepositoryBasic : PostRepository {
     private var postlist = mutableListOf<Post>()
 
     override suspend fun getAll(): List<Post> {
-        mutex.withLock {
-            return postlist.toList()
-        }
+        return postlist.toList()
     }
 
     private suspend fun getAutoIncrementedId(): Int {
