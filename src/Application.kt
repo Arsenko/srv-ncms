@@ -45,17 +45,12 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.module(testing: Boolean = false) {
-    val repos = PostRepositoryBasic()
-
-
-
-
     install(KodeinFeature) {
         constant(tag = "upload-dir") with (environment.config.propertyOrNull("ktor.upload.dir")?.getString()
             ?: throw ConfigurationException("Upload dir is not specified"))
         bind<PostService>() with eagerSingleton { PostService(instance()) }
         bind<FileService>() with eagerSingleton { FileService(instance(tag = "upload-dir")) }
-        bind<PostRepository>() with eagerSingleton { PostRepositoryBasic() }
+        bind<PostRepository>() with eagerSingleton {PostRepositoryBasic()}
         bind<PasswordEncoder>() with eagerSingleton { BCryptPasswordEncoder() }
         bind<JWTTokenService>() with eagerSingleton { JWTTokenService() }
         bind<UserRepository>() with eagerSingleton { UserRepositoryBasic() }
