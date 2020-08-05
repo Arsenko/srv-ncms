@@ -21,6 +21,7 @@ import io.ktor.routing.Routing
 import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.route
+import jdk.nashorn.internal.runtime.regexp.joni.Config.log
 
 class RoutingV1(private val staticPath: String,
                 private val postService: PostService,
@@ -55,6 +56,7 @@ class RoutingV1(private val staticPath: String,
                 route("/api/v1/posts/") {
                     post{
                         val input = call.receive<Post>()
+                        log.print(input.toString())
                         val response=postService.addPost(input)
                         call.respond(response)
                     }
