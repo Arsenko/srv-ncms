@@ -27,9 +27,7 @@ class PostRepositoryBasic : PostRepository {
                     2,
                     false,
                     0,
-                    false,
                     8,
-                    2,
                     null,
                     null,
                     null
@@ -45,8 +43,6 @@ class PostRepositoryBasic : PostRepository {
                     3,
                     true,
                     0,
-                    false,
-                    8,
                     2,
                     Pair(60.0, 85.0),
                     null,
@@ -63,8 +59,6 @@ class PostRepositoryBasic : PostRepository {
                     4,
                     false,
                     0,
-                    false,
-                    8,
                     2,
                     null,
                     "https://www.youtube.com/watch?v=lO5_E9aObE0",
@@ -81,8 +75,6 @@ class PostRepositoryBasic : PostRepository {
                     0,
                     false,
                     0,
-                    false,
-                    8,
                     2,
                     null,
                     "https://l.netology.ru/marketing_director_guide?utm_source=vk&utm_medium=smm&utm_campaign=bim_md_oz_vk_smm_guide&utm_content=12052020",
@@ -111,8 +103,6 @@ class PostRepositoryBasic : PostRepository {
                     postDate = post.postDate,
                     repostPost = post.repostPost,
                     postType = post.postType,
-                    dislikeCounter = post.dislikeCounter,
-                    dislikedByMe = post.dislikedByMe,
                     likeCounter = post.likeCounter,
                     likedByMe = post.likedByMe,
                     commentCounter = post.commentCounter,
@@ -172,9 +162,9 @@ class PostRepositoryBasic : PostRepository {
             if (postToChange != null) {
                 when (counterType) {
                     CounterType.Like -> postToChange.likeChange(counter)
-                    CounterType.Dislike -> postToChange.dislikeChange(counter)
                     CounterType.Comment -> postToChange.commentChange(counter)
                     CounterType.Share -> postToChange.shareChange(counter)
+                    else -> postToChange
                 }.also {
                     postlist[id] = it
                     return it

@@ -10,8 +10,6 @@ data class Post(
     val postDate: Date = Date(),
     val repostPost: Post?,
     val postType: PostType,
-    val dislikeCounter:Int,
-    val dislikedByMe:Boolean = false,
     val likeCounter: Int,
     val likedByMe: Boolean = false,
     val commentCounter: Int,
@@ -24,8 +22,6 @@ data class Post(
     fun likeChange(counter:Int): Post =
         copy(likeCounter=counter)
 
-    fun dislikeChange(counter:Int): Post =
-        copy(dislikeCounter=counter)
     fun commentChange(counter:Int) : Post =
         copy(commentCounter = counter)
 
