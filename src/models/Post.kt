@@ -4,8 +4,8 @@ import java.util.*
 
 data class Post(
     val id:Int?,
-    val authorName: String,
-    val authorDrawable: Int,
+    val authorName: String?,
+    val authorDrawable: Int?,
     val bodyText: String,
     val postDate: Date = Date(),
     val repostPost: Post?,

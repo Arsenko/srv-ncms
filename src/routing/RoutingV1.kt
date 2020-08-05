@@ -2,6 +2,7 @@ package com.minnullin.routing
 
 import com.minnullin.models.AuthenticationInDto
 import com.minnullin.models.CounterChangeDto
+import com.minnullin.models.Post
 import com.minnullin.models.User
 import com.minnullin.service.FileService
 import com.minnullin.service.PostService
@@ -52,6 +53,11 @@ class RoutingV1(private val staticPath: String,
                     }
                 }
                 route("/api/v1/posts/") {
+                    post{
+                        val input = call.receive<Post>()
+                        val response=postService.addPost(input)
+                        call.respond(response)
+                    }
                     get {
                         val respond = postService.getAll()
                         call.respond(respond)
