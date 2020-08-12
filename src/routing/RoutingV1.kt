@@ -94,7 +94,7 @@ class RoutingV1(private val staticPath: String,
                     post {
                         val receiveModel: CounterChangeDto = call.receive()
                         receiveModel.let { outerIt ->
-                            postService.changeCounter(outerIt).let {
+                            postService.changeCounter(outerIt,call.authentication.principal<User>()!!.username).let {
                                 if (it != null) {
                                     call.respond(it)
                                 } else {
