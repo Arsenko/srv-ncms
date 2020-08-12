@@ -11,7 +11,7 @@ data class Post(
     val repostPost: Post?,
     val postType: PostType,
     val likeCounter: Int,
-    val likedByMe: Boolean = false,
+    val likedBy: MutableList<String>?,
     val commentCounter: Int,
     val shareCounter: Int,
     val location: Pair<Double, Double>?,
@@ -27,4 +27,25 @@ data class Post(
 
     fun shareChange(counter:Int) : Post =
         copy(shareCounter = counter)
+
+    companion object{
+        fun generateComp(model:PostDtoFinal): Post {
+            return Post(
+                    id = model.id,
+                    authorName = model.authorName,
+                    authorDrawable = model.authorDrawable,
+                    bodyText = model.bodyText,
+                    postDate = model.postDate,
+                    repostPost = model.repostPost,
+                    postType = model.postType,
+                    likeCounter = model.likeCounter,
+                    likedBy = null,
+                    commentCounter = model.commentCounter,
+                    shareCounter = model.shareCounter,
+                    location = model.location,
+                    link=model.link,
+                    postImage = model.postImage
+            )
+        }
+    }
 }

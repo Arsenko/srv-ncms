@@ -1,13 +1,11 @@
 package com.minnullin.routing
 
-import com.minnullin.models.AuthenticationInDto
-import com.minnullin.models.CounterChangeDto
-import com.minnullin.models.Post
-import com.minnullin.models.User
+import com.minnullin.models.*
 import com.minnullin.service.FileService
 import com.minnullin.service.PostService
 import com.minnullin.service.UserService
 import io.ktor.application.call
+import io.ktor.auth.UserIdPrincipal
 import io.ktor.auth.authenticate
 import io.ktor.auth.authentication
 import io.ktor.features.ParameterConversionException
@@ -55,13 +53,13 @@ class RoutingV1(private val staticPath: String,
                 }
                 route("/api/v1/posts/") {
                     get {
-                        val respond = postService.getAll()
+                        val respond = postService.getAll(call.authentication.principal<UserIdPrincipal>()?.name.toString())
                         call.respond(respond)
                     }
                 }
                 route("/api/v1/posts/") {
                     post {
-                        val input = call.receive<Post>()
+                        val input = call.receive<PostDtoFinal>()
                         val response = postService.addPost(input)
                         call.respond(HttpStatusCode.Accepted)
                     }

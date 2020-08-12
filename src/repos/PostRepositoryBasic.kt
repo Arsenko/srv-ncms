@@ -4,9 +4,6 @@ import com.minnullin.models.Post
 import com.minnullin.models.PostType
 import io.ktor.features.NotFoundException
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.NotSerializableException
@@ -25,7 +22,7 @@ class PostRepositoryBasic : PostRepository {
                     null,
                     PostType.Post,
                     2,
-                    false,
+                    mutableListOf("aaa"),
                     0,
                     8,
                     null,
@@ -41,7 +38,7 @@ class PostRepositoryBasic : PostRepository {
                     null,
                     PostType.Event,
                     3,
-                    true,
+                    mutableListOf(),
                     0,
                     2,
                     Pair(60.0, 85.0),
@@ -57,7 +54,7 @@ class PostRepositoryBasic : PostRepository {
                     null,
                     PostType.Video,
                     4,
-                    false,
+                    mutableListOf(),
                     0,
                     2,
                     null,
@@ -73,7 +70,7 @@ class PostRepositoryBasic : PostRepository {
                     null,
                     PostType.Advertising,
                     0,
-                    false,
+                    mutableListOf("aaa"),
                     0,
                     2,
                     null,
@@ -104,7 +101,7 @@ class PostRepositoryBasic : PostRepository {
                     repostPost = post.repostPost,
                     postType = post.postType,
                     likeCounter = post.likeCounter,
-                    likedByMe = post.likedByMe,
+                    likedBy = null,
                     commentCounter = post.commentCounter,
                     shareCounter = post.shareCounter,
                     location = post.location,

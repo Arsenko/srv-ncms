@@ -2,7 +2,7 @@ package com.minnullin.models
 
 import java.util.*
 
-class PostV2Dto(
+class PostDtoFinal(
     val id: Int, //
     val authorName: String?,
     val authorDrawable: Int?,
@@ -19,8 +19,12 @@ class PostV2Dto(
     var postImage: Int?
 ) {
     companion object {
-        fun generateComp(model: Post) = model.id?.let {
-            PostV2Dto(
+        fun generateComp(model: Post,login: String) = model.id?.let {
+            var likedByMe=false
+            if(model.likedBy!=null) {
+                var likedByMe: Boolean = login !in model.likedBy
+            }
+            PostDtoFinal(
                 id = it,
                 authorName = model.authorName,
                 authorDrawable = model.authorDrawable,
@@ -29,7 +33,7 @@ class PostV2Dto(
                 repostPost = model.repostPost,
                 postType = model.postType,
                 likeCounter = model.likeCounter,
-                likedByMe = model.likedByMe,
+                likedByMe = likedByMe,
                 commentCounter = model.commentCounter,
                 shareCounter = model.shareCounter,
                 location = model.location,
