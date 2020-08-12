@@ -1,7 +1,4 @@
-import com.minnullin.models.CounterChangeDto
-import com.minnullin.models.CounterType
-import com.minnullin.models.Post
-import com.minnullin.models.PostType
+import com.minnullin.models.*
 import io.ktor.features.NotFoundException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.sync.Mutex
@@ -148,7 +145,7 @@ class PostRepositoryBasic : PostRepository {
         }
     }
 
-    override suspend fun changePostCounter(id: Int, counter: Int, counterType: CounterType): Post? {
+    override suspend fun changePostCounter(id: Int, counter: Int, counterType: CounterType,login: String): PostDtoFinal? {
         mutex.withLock {
             var postToChange: Post? = null
             for (i in 0 until postlist.size) {
@@ -164,10 +161,10 @@ class PostRepositoryBasic : PostRepository {
                     else -> postToChange
                 }.also {
                     postlist[id] = it
-                    return it
+                    return PostDtoFinal.generateComp(it,login)
                 }
             }
-            return postToChange
+            return postToChange?.let { PostDtoFinal.generateComp(it,login) }
         }
     }
 }
