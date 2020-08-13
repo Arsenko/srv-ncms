@@ -161,10 +161,10 @@ class PostRepositoryBasic : PostRepository {
                     else -> postToChange
                 }.also {
                     postlist[id] = it
-                    return PostDtoFinal.generateComp(it,login)
+                    return PostDtoFinal.generateComp(it,login,counter)
                 }
             }
-            return postToChange?.let { PostDtoFinal.generateComp(it,login) }
+            return postToChange?.let { PostDtoFinal.generateComp(it,login,counter) }
         }
     }
 }
