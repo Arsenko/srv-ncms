@@ -53,7 +53,7 @@ class RoutingV1(private val staticPath: String,
                 }
                 route("/api/v1/posts/") {
                     get {
-                        val respond = postService.getAll(call.authentication.principal<UserIdPrincipal>()?.name.toString())
+                        val respond = postService.getAll(call.authentication.principal<User>()!!.name)
                         call.respond(respond)
                     }
                 }
@@ -86,7 +86,7 @@ class RoutingV1(private val staticPath: String,
                             "id",
                             "Int"
                         )
-                        call.respond(postService.deleteById(id, call.authentication.principal<User>()!!.username))
+                        call.respond(postService.deleteById(id, call.authentication.principal<User>()!!.name))
                     }
                 }
 
@@ -94,7 +94,7 @@ class RoutingV1(private val staticPath: String,
                     post {
                         val receiveModel: CounterChangeDto = call.receive()
                         receiveModel.let { outerIt ->
-                            postService.changeCounter(outerIt,call.authentication.principal<User>()!!.username).let {
+                            postService.changeCounter(outerIt,call.authentication.principal<User>()!!.name).let {
                                 if (it != null) {
                                     call.respond(it)
                                 } else {

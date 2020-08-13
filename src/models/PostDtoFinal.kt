@@ -22,7 +22,7 @@ class PostDtoFinal(
         fun generateComp(model: Post,login: String) = model.id?.let {
             var likedByMe=false
             if(model.likedBy!=null) {
-                var likedByMe: Boolean = login !in model.likedBy
+                likedByMe = login !in model.likedBy
             }
             PostDtoFinal(
                 id = it,
