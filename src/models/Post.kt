@@ -19,14 +19,56 @@ data class Post(
     val postImage: Int?
 
 ) {
-    fun likeChange(counter:Int): Post =
-        copy(likeCounter=counter)
+    fun likeChange(counter:Int,login:String): Post {
+        return Post(
+                id = id,
+                authorName = authorName,
+                authorDrawable = authorDrawable,
+                bodyText = bodyText,
+                postDate = postDate,
+                repostPost = repostPost,
+                postType = postType,
+                likeCounter = counter,
+                likedBy = addToLikeList(likedBy,login),
+                commentCounter = commentCounter,
+                shareCounter = shareCounter,
+                location = location,
+                link = link,
+                postImage = postImage
+        )
+    }
 
-    fun commentChange(counter:Int) : Post =
+    fun commentChange(counter:Int,login:String) : Post =
         copy(commentCounter = counter)
 
-    fun shareChange(counter:Int) : Post =
-        copy(shareCounter = counter)
+    fun shareChange(counter:Int,login:String) : Post {
+        return Post(
+                id=id,
+                authorName = authorName,
+                authorDrawable = authorDrawable,
+                bodyText = bodyText,
+                postDate = postDate,
+                repostPost = repostPost,
+                postType = postType,
+                likeCounter = likeCounter,
+                likedBy = likedBy,
+                commentCounter = commentCounter,
+                shareCounter = counter,
+                location = location,
+                link=link,
+                postImage = postImage
+        )
+    }
+
+    private fun addToLikeList(likedBy: MutableList<String>?, newLikeLogin:String):MutableList<String>{
+        var temp=likedBy
+        if(temp!=null) {
+            temp.add(newLikeLogin)
+        }else{
+            temp= mutableListOf(newLikeLogin)
+        }
+        return temp
+    }
 
     companion object{
         fun generateComp(model:PostDtoFinal): Post {

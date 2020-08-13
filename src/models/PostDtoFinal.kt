@@ -19,7 +19,7 @@ class PostDtoFinal(
     var postImage: Int?
 ) {
     companion object {
-        fun generateComp(model: Post,login: String,counter:Int) = model.id?.let {
+        fun generateComp(model: Post,login: String) = model.id?.let {
             var likedByMe=false
             if(model.likedBy!=null) {
                 likedByMe = login !in model.likedBy
@@ -32,7 +32,7 @@ class PostDtoFinal(
                 postDate = model.postDate,
                 repostPost = model.repostPost,
                 postType = model.postType,
-                likeCounter = counter,
+                likeCounter = model.likeCounter,
                 likedByMe = likedByMe,
                 commentCounter = model.commentCounter,
                 shareCounter = model.shareCounter,

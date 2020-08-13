@@ -14,7 +14,7 @@ import java.util.*
 class PostService(private val repos: PostRepository) {
     suspend fun getAll(login:String): List<PostDtoFinal?> {
         val temp =repos.getAll()
-        return temp.map { PostDtoFinal.generateComp(it,login,it.likeCounter) }
+        return temp.map { PostDtoFinal.generateComp(it,login) }
     }
     suspend fun getById(id:Int): Post? {
         return repos.getById(id)

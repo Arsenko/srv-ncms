@@ -155,16 +155,16 @@ class PostRepositoryBasic : PostRepository {
             }
             if (postToChange != null) {
                 when (counterType) {
-                    CounterType.Like -> postToChange.likeChange(counter)
-                    CounterType.Comment -> postToChange.commentChange(counter)
-                    CounterType.Share -> postToChange.shareChange(counter)
+                    CounterType.Like -> postToChange.likeChange(counter,login)
+                    CounterType.Comment -> postToChange.commentChange(counter,login)
+                    CounterType.Share -> postToChange.shareChange(counter,login)
                     else -> postToChange
                 }.also {
                     postlist[id] = it
-                    return PostDtoFinal.generateComp(it,login,counter)
+                    return PostDtoFinal.generateComp(it,login)
                 }
             }
-            return postToChange?.let { PostDtoFinal.generateComp(it,login,counter) }
+            return postToChange?.let { PostDtoFinal.generateComp(it,login) }
         }
     }
 }
