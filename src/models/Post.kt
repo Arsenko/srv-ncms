@@ -29,7 +29,7 @@ data class Post(
                     postDate = postDate,
                     repostPost = repostPost,
                     postType = postType,
-                    likeCounter = likeCounter.inc(),
+                    likeCounter = likeCounter+1,
                     likedBy = addToLikeList(likedBy, login),
                     commentCounter = commentCounter,
                     shareCounter = shareCounter,
@@ -46,8 +46,8 @@ data class Post(
                     postDate = postDate,
                     repostPost = repostPost,
                     postType = postType,
-                    likeCounter = likeCounter.dec(),
-                    likedBy = addToLikeList(likedBy, login),
+                    likeCounter = likeCounter-1,
+                    likedBy =  removeFromLikeList(likedBy, login),
                     commentCounter = commentCounter,
                     shareCounter = shareCounter,
                     location = location,
@@ -58,10 +58,10 @@ data class Post(
     }
 
     fun commentChange(counter:Boolean,login:String) : Post {
-        if(counter) {
-            return copy(commentCounter = commentCounter.inc())
+        return if(counter) {
+            copy(commentCounter = commentCounter.inc())
         }else{
-            return copy(commentCounter = commentCounter.dec())
+            copy(commentCounter = commentCounter.dec())
         }
     }
 
@@ -109,6 +109,18 @@ data class Post(
             temp.add(newLikeLogin)
         }else{
             temp= mutableListOf(newLikeLogin)
+        }
+        return temp
+    }
+
+    private fun removeFromLikeList(likedBy: MutableList<String>?, newLikeLogin: String):MutableList<String>{
+        var temp=likedBy
+        if(temp!=null) {
+            if (temp.contains(newLikeLogin)) {
+                temp.remove(newLikeLogin)
+            }
+        }else{
+            temp= mutableListOf()
         }
         return temp
     }

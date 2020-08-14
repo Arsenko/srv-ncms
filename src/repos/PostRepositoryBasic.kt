@@ -155,9 +155,9 @@ class PostRepositoryBasic : PostRepository {
             }
             if (postToChange != null) {
                 when (model.counterType) {
-                    CounterType.Like -> postToChange.likeChange(model.counter,login)
-                    CounterType.Comment -> postToChange.commentChange(model.counter,login)
-                    CounterType.Share -> postToChange.shareChange(model.counter,login)
+                    CounterType.Like -> postToChange.likeChange(model.increase,login)
+                    CounterType.Comment -> postToChange.commentChange(model.increase,login)
+                    CounterType.Share -> postToChange.shareChange(model.increase,login)
                     else -> postToChange
                 }.also {
                     postlist[id] = it
