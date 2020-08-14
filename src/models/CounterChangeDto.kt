@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 class CounterChangeDto(
     val id:Int,
-    val counter:Int,
+    val counter:Boolean,
     val counterType:CounterType
 )

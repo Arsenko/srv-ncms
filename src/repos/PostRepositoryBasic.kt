@@ -145,7 +145,7 @@ class PostRepositoryBasic : PostRepository {
         }
     }
 
-    override suspend fun changePostCounter(id: Int, counter: Int, counterType: CounterType,login: String): PostDtoFinal? {
+    override suspend fun changePostCounter(model:CounterChangeDto,login: String): PostDtoFinal? {
         mutex.withLock {
             var postToChange: Post? = null
             for (i in 0 until postlist.size) {
@@ -154,10 +154,10 @@ class PostRepositoryBasic : PostRepository {
                 }
             }
             if (postToChange != null) {
-                when (counterType) {
-                    CounterType.Like -> postToChange.likeChange(counter,login)
-                    CounterType.Comment -> postToChange.commentChange(counter,login)
-                    CounterType.Share -> postToChange.shareChange(counter,login)
+                when (model.counterType) {
+                    CounterType.Like -> postToChange.likeChange(model.counter,login)
+                    CounterType.Comment -> postToChange.commentChange(model.counter,login)
+                    CounterType.Share -> postToChange.shareChange(model.counter,login)
                     else -> postToChange
                 }.also {
                     postlist[id] = it

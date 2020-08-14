@@ -26,6 +26,6 @@ class PostService(private val repos: PostRepository) {
         return repos.addPost(Post.generateComp(post))
     }
     suspend fun changeCounter(model: CounterChangeDto,login: String): PostDtoFinal? {
-        return repos.changePostCounter(model.id,model.counter,model.counterType,login)
+        return repos.changePostCounter(model,login)
     }
 }

@@ -19,45 +19,88 @@ data class Post(
     val postImage: Int?
 
 ) {
-    fun likeChange(counter:Int,login:String): Post {
-        return Post(
-                id = id,
-                authorName = authorName,
-                authorDrawable = authorDrawable,
-                bodyText = bodyText,
-                postDate = postDate,
-                repostPost = repostPost,
-                postType = postType,
-                likeCounter = counter,
-                likedBy = addToLikeList(likedBy,login),
-                commentCounter = commentCounter,
-                shareCounter = shareCounter,
-                location = location,
-                link = link,
-                postImage = postImage
-        )
+    fun likeChange(counter:Boolean,login:String): Post {
+        if(counter) {
+            return Post(
+                    id = id,
+                    authorName = authorName,
+                    authorDrawable = authorDrawable,
+                    bodyText = bodyText,
+                    postDate = postDate,
+                    repostPost = repostPost,
+                    postType = postType,
+                    likeCounter = likeCounter.inc(),
+                    likedBy = addToLikeList(likedBy, login),
+                    commentCounter = commentCounter,
+                    shareCounter = shareCounter,
+                    location = location,
+                    link = link,
+                    postImage = postImage
+            )
+        }else{
+            return Post(
+                    id = id,
+                    authorName = authorName,
+                    authorDrawable = authorDrawable,
+                    bodyText = bodyText,
+                    postDate = postDate,
+                    repostPost = repostPost,
+                    postType = postType,
+                    likeCounter = likeCounter.dec(),
+                    likedBy = addToLikeList(likedBy, login),
+                    commentCounter = commentCounter,
+                    shareCounter = shareCounter,
+                    location = location,
+                    link = link,
+                    postImage = postImage
+            )
+        }
     }
 
-    fun commentChange(counter:Int,login:String) : Post =
-        copy(commentCounter = counter)
+    fun commentChange(counter:Boolean,login:String) : Post {
+        if(counter) {
+            return copy(commentCounter = commentCounter.inc())
+        }else{
+            return copy(commentCounter = commentCounter.dec())
+        }
+    }
 
-    fun shareChange(counter:Int,login:String) : Post {
-        return Post(
-                id=id,
-                authorName = authorName,
-                authorDrawable = authorDrawable,
-                bodyText = bodyText,
-                postDate = postDate,
-                repostPost = repostPost,
-                postType = postType,
-                likeCounter = likeCounter,
-                likedBy = likedBy,
-                commentCounter = commentCounter,
-                shareCounter = counter,
-                location = location,
-                link=link,
-                postImage = postImage
-        )
+    fun shareChange(counter:Boolean,login:String) : Post {
+        if(counter) {
+            return Post(
+                    id = id,
+                    authorName = authorName,
+                    authorDrawable = authorDrawable,
+                    bodyText = bodyText,
+                    postDate = postDate,
+                    repostPost = repostPost,
+                    postType = postType,
+                    likeCounter = likeCounter,
+                    likedBy = likedBy,
+                    commentCounter = commentCounter,
+                    shareCounter = shareCounter.inc(),
+                    location = location,
+                    link = link,
+                    postImage = postImage
+            )
+        }else{
+            return Post(
+                    id = id,
+                    authorName = authorName,
+                    authorDrawable = authorDrawable,
+                    bodyText = bodyText,
+                    postDate = postDate,
+                    repostPost = repostPost,
+                    postType = postType,
+                    likeCounter = likeCounter,
+                    likedBy = likedBy,
+                    commentCounter = commentCounter,
+                    shareCounter = shareCounter.dec(),
+                    location = location,
+                    link = link,
+                    postImage = postImage
+            )
+        }
     }
 
     private fun addToLikeList(likedBy: MutableList<String>?, newLikeLogin:String):MutableList<String>{
