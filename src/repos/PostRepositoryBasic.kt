@@ -149,7 +149,7 @@ class PostRepositoryBasic : PostRepository {
         mutex.withLock {
             var postToChange: Post? = null
             for (i in 0 until postlist.size) {
-                if (id == postlist[i].id) {
+                if (model.id == postlist[i].id) {
                     postToChange = postlist[i]
                 }
             }
