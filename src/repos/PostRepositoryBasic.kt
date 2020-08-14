@@ -88,7 +88,6 @@ class PostRepositoryBasic : PostRepository {
     }
 
     override suspend fun addPost(post: PostDtoFinal): Post {
-        if (post.id == null) {
             val postWithId = Post(
                     id = getAutoIncrementedId(),
                     authorName = post.authorName,
@@ -107,7 +106,6 @@ class PostRepositoryBasic : PostRepository {
             )
             postlist.add(postWithId)
             return postWithId
-        } else throw NotSerializableException()
     }
 
     override suspend fun deleteById(id: Int, authorName: String): HttpStatusCode {
