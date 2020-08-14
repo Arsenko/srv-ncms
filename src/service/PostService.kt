@@ -23,7 +23,7 @@ class PostService(private val repos: PostRepository) {
         return repos.deleteById(id,authorName)
     }
     suspend fun addPost(post:PostDtoFinal):Post{
-        return repos.addPost(Post.generateComp(post))
+        return repos.addPost(post)
     }
     suspend fun changeCounter(model: CounterChangeDto,login: String): PostDtoFinal? {
         return repos.changePostCounter(model,login)

@@ -8,7 +8,7 @@ import io.ktor.http.HttpStatusCode
 interface PostRepository{
     suspend fun getAll():List<Post>
     suspend fun changePostCounter(model:CounterChangeDto,login:String): PostDtoFinal?
-    suspend fun addPost(post: Post): Post
+    suspend fun addPost(post: PostDtoFinal): Post
     suspend fun deleteById(id:Int,authorName:String):HttpStatusCode
     suspend fun getById(id:Int):Post
 

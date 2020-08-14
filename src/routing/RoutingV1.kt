@@ -60,7 +60,7 @@ class RoutingV1(private val staticPath: String,
                 route("/api/v1/posts/") {
                     post {
                         val input = call.receive<PostDtoFinal>()
-                        val response = postService.addPost(input)
+                        postService.addPost(input)
                         call.respond(HttpStatusCode.Accepted)
                     }
                 }

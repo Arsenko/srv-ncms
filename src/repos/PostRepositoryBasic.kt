@@ -87,7 +87,7 @@ class PostRepositoryBasic : PostRepository {
         }
     }
 
-    override suspend fun addPost(post: Post): Post {
+    override suspend fun addPost(post: PostDtoFinal): Post {
         if (post.id == null) {
             val postWithId = Post(
                     id = getAutoIncrementedId(),
